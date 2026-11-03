@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-image: url('foto.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        table {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-color: #bcccdc;
+        }
+
+        #ekran {
+            background-color: #102a43;
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: right;
+            padding: 4px;
+            border: 1px solid #bcccdc;
+        }
+
+        button {
+            width: 100%;
+            background-color: #f0f4f8;
+            color: #102a43;
+            border: 1px solid #bcccdc;
+            padding: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #d9e2ec;
+        }
+
+        .btn-znaki {
+            background-color: #dceefb;
+            color: #0b69a3;
+        }
+        .btn-znaki:hover {
+            background-color: #bee3f8;
+        }
+
+        .btn-rowno {
+            background-color: #c6f6d5;
+            color: #22543d;
+        }
+        .btn-rowno:hover {
+            background-color: #9ae6b4;
+        }
+
+        .btn-waluta {
+            background-color: #feebc8;
+            color: #7b341e;
+        }
+        .btn-waluta:hover {
+            background-color: #fbd38d;
+        }
+
+        .btn-czysc {
+            background-color: #fed7d7;
+            color: #9b2c2c;
+        }
+        .btn-czysc:hover {
+            background-color: #feb2b2;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Скрытый аудиоэлемент, файл meow.mp3 должен лежать в той же папке -->
+<audio id="meowSound" src="meow.mp3"></audio>
+
+<h2>Kalkulator</h2>
+<table border="1" cellpadding="10">
+    <tr>
+        <td colspan="4">
+            <input type="text" id="ekran" readonly size="24">
+        </td>
+    </tr>
+    <tr>
+        <td><button onclick="wpisz('7')">7</button></td>
+        <td><button onclick="wpisz('8')">8</button></td>
+        <td><button onclick="wpisz('9')">9</button></td>
+        <td><button class="btn-znaki" onclick="wpisz('/')">/</button></td>
+    </tr>
+    <tr>
+        <td><button onclick="wpisz('4')">4</button></td>
+        <td><button onclick="wpisz('5')">5</button></td>
+        <td><button onclick="wpisz('6')">6</button></td>
+        <td><button class="btn-znaki" onclick="wpisz('*')">x</button></td>
+    </tr>
+    <tr>
+        <td><button onclick="wpisz('1')">1</button></td>
+        <td><button onclick="wpisz('2')">2</button></td>
+        <td><button onclick="wpisz('3')">3</button></td>
+        <td><button class="btn-znaki" onclick="wpisz('-')">-</button></td>
+    </tr>
+    <tr>
+        <td><button onclick="wpisz('0')">0</button></td>
+        <td><button onclick="wpisz('.')">.</button></td>
+        <td><button class="btn-rowno" onclick="oblicz()">=</button></td>
+        <td><button class="btn-znaki" onclick="wpisz('+')">+</button></td>
+    </tr>
+    <tr>
+        <td colspan="2"><button class="btn-waluta" onclick="przeliczNaPLN('USD')">USD ➔ PLN</button></td>
+        <td colspan="2"><button class="btn-waluta" onclick="przeliczNaPLN('EUR')">EUR ➔ PLN</button></td>
+    </tr>
+    <tr>
+        <td colspan="4">
+            <button class="btn-czysc" onclick="wyczysc()">wyczysc (C)</button>
+        </td>
+    </tr>
+</table>
+
+<script>
+    const KURS_USD = 4.00;
+    const KURS_EUR = 4.30;
+
+    function grajMiau() {
+        let audio = document.getElementById("meowSound");
+        audio.currentTime = 0; // Перематываем в начало, чтобы звук успевал воспроизводиться при частых нажатиях
+        audio.play().catch(e => console.log("Автозапуск звука заблокирован браузером"));
+    }
+
+    function wpisz(znak) {
+        grajMiau();
+        document.getElementById("ekran").value += znak;
+    }
+
+    function oblicz() {
+        grajMiau();
+        let ekran = document.getElementById("ekran");
+        try {
+            let tekst = ekran.value;
+            if (!/^[0-9+\-*/.]+$/.test(tekst)) {
+                throw new Error("Bledne dzialanie");
+            }
+            let wynik = Function("return (" + tekst + ")")();
+            if (!Number.isFinite(wynik)) {
+                ekran.value = "Blad";
+            } else {
+                ekran.value = wynik;
+            }
+        } catch {
+            ekran.value = "Blad";
+        }
+    }
+
+    function wyczysc() {
+        grajMiau();
+        document.getElementById("ekran").value = "";
+    }
+
+    function przeliczNaPLN(waluta) {
+        oblicz();
+        let ekran = document.getElementById("ekran");
+        let kwota = parseFloat(ekran.value);
+
+        if (isNaN(kwota)) {
+            ekran.value = "Blad";
+            return;
+        }
+
+        let kurs = (waluta === 'USD') ? KURS_USD : KURS_EUR;
+        let wynik = (kwota * kurs).toFixed(2);
+        ekran.value = wynik;
+    }
+</script>
+
+</body>
+</html>
